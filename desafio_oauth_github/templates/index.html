@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Login OAuth2 — GitHub</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><main class="card"><div class="mark">GH</div><h1>Autenticação OAuth 2.0</h1><p class="subtitle">Desafio — Desenvolvimento de Serviços e APIs</p>
+{% if usuario %}<img class="avatar" src="{{ usuario.avatar }}" alt="Foto de perfil"><h2>Olá, {{ usuario.nome }}!</h2><p>Usuário: <strong>@{{ usuario.login }}</strong></p><a class="link" href="{{ usuario.perfil }}" target="_blank" rel="noopener noreferrer">Ver perfil no GitHub</a><a class="button secondary" href="{{ url_for('logout') }}">Sair</a>
+{% else %}<p>Entre com sua conta do GitHub para visualizar suas informações.</p><a class="button" href="{{ url_for('login') }}">Entrar com GitHub</a>{% if not configurado %}<p class="hint">Configure as credenciais no arquivo .env para habilitar o login.</p>{% endif %}{% endif %}
+</main></body></html>
