@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            gap: 1.5rem;
+        }
+        h1 { font-size: 2.2rem; margin: 0; }
+        button {
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            color: #ff5c5c;
+            border: 1px solid #ff5c5c;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { background: #ff5c5c; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <h1 id="saudacao">Carregando...</h1>
+    <button id="btn-sair">Sair</button>
+
+    <script>
+        async function carregarPerfil() {
+            const token = localStorage.getItem('token');
+
+            // Se não houver token salvo, bloqueia e volta para o login
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            try {
+                const resposta = await fetch('/perfil', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!resposta.ok) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const dados = await resposta.json();
+                document.getElementById('saudacao').textContent = `Olá, ${dados.nome}`;
+            } catch (erro) {
+                window.location.href = '/index.html';
+            }
+        }
+
+        document.getElementById('btn-sair').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        });
+
+        carregarPerfil();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso — Desafio Auth</title>
+</head>
+<body>
+
+<div class="card">
+    <h2 id="titulo">Criar Conta</h2>
+
+    <form id="form-auth">
+        <div class="campo" id="grupo-nome">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" placeholder="Seu nome">
+        </div>
+
+        <div class="campo">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="campo">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" id="btn-submit">Cadastrar</button>
+    </form>
+
+    <div class="mensagem" id="mensagem"></div>
+
+    <div class="alternar">
+        <span id="texto-alternar">Já tem conta?</span>
+        <a id="link-alternar">Fazer login</a>
+    </div>
+</div>
+
+<script>
+    let modoCadastro = true;
+
+    const titulo = document.getElementById('titulo');
+    const grupoNome = document.getElementById('grupo-nome');
+    const inputNome = document.getElementById('nome');
+    const btnSubmit = document.getElementById('btn-submit');
+    const textoAlternar = document.getElementById('texto-alternar');
+    const linkAlternar = document.getElementById('link-alternar');
+    const msgEl = document.getElementById('mensagem');
+    const form = document.getElementById('form-auth');
+
+    // Alterna entre Cadastro e Login
+    linkAlternar.addEventListener('click', () => {
+        modoCadastro = !modoCadastro;
+        msgEl.textContent = '';
+
+        if (modoCadastro) {
+            titulo.textContent = 'Criar Conta';
+            grupoNome.classList.remove('oculto');
+            inputNome.required = true;
+            btnSubmit.textContent = 'Cadastrar';
+            textoAlternar.textContent = 'Já tem conta?';
+            linkAlternar.textContent = 'Fazer login';
+        } else {
+            titulo.textContent = 'Entrar';
+            grupoNome.classList.add('oculto');
+            inputNome.required = false;
+            btnSubmit.textContent = 'Entrar';
+            textoAlternar.textContent = 'Não tem conta?';
+            linkAlternar.textContent = 'Criar conta';
+        }
+    });
+
+    // Envia os dados para a API
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msgEl.textContent = '';
+
+        const nome = inputNome.value.trim();
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+
+        const rota = modoCadastro ? '/cadastro' : '/login';
+        const payload = modoCadastro ? { nome, email, senha } : { email, senha };
+
+        try {
+            const resposta = await fetch(rota, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                msgEl.className = 'mensagem erro';
+                msgEl.textContent = dados.erro || 'Ocorreu um erro.';
+                return;
+            }
+
+            if (modoCadastro) {
+                msgEl.className = 'mensagem sucesso';
+                msgEl.textContent = 'Conta criada! Faça login agora.';
+                form.reset();
+                linkAlternar.click(); // Muda automaticamente para a tela de login
+            } else {
+                // Salva o token e redireciona para a tela protegida
+                localStorage.setItem('token', dados.token);
+                window.location.href = '/home.html';
+            }
+        } catch (err) {
+            msgEl.className = 'mensagem erro';
+            msgEl.textContent = 'Erro de conexão com o servidor.';
+        }
+    });
+</script>
+
+</body>
+</html>
